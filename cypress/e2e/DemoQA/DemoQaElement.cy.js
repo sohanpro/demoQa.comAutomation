@@ -1,4 +1,30 @@
 describe("Practice suit", () => {
+
+  //file upload
+  
+  //File upload function
+  function FileUpload(filePath, filename) {
+    cy.readFile(filePath, "binary").then((fileContent) => {
+      cy.get(":nth-child(7) > .input-block > .form-control").attachFile({
+        fileContent: fileContent.toString("base64"),
+        fileName: filename,
+        mimeType: "image/jpeg",
+      });
+    });
+  }
+
+  function response (Url_name,status_code)
+  {
+    cy.request(Url_name).then((response) => {
+      if (response.status == 500) {
+        cy.log("The server responding 500 internal server error");
+      } else {
+        expect(response.status).to.eq(status_code);
+      }
+    });
+  }
+
+
   Cypress.on("uncaught:exception", (err, runnable) => {
     return false;
   });
@@ -97,7 +123,7 @@ describe("Practice suit", () => {
 
       })
   }
-  it.only("Test case for web table",()=>
+  it("Test case for web table",()=>
   {
      //Click the text Box
      cy.get(".element-list.collapse.show").within(() => {
@@ -121,5 +147,79 @@ describe("Practice suit", () => {
       cy.wait(1000);
 
       cy.get('.ReactTable.-striped.-highlight').contains("shawkat");
+  });
+
+  it("Test case for button",()=>
+  {
+
+    //Click the button Box
+    cy.get(".element-list.collapse.show").within(() => {
+      cy.contains("Buttons").click();
+    });
+    cy.get(".col-12.mt-4.col-md-6").within(()=>
+    {
+      cy.contains("Double Click Me").dblclick();
+      cy.contains("Right Click Me").rightclick();
+      cy.get('.btn.btn-primary').eq(2).click();
+      
+      //cy.contains("Double Click Me").dblclick().then(()=>{contains('text','You have done a double click')});
+    
   })
+  cy.get('#doubleClickMessage').should('have.text','You have done a double click')
+
+  cy.get('#rightClickMessage').should("have.text","You have done a right click");
+
+  cy.get('#dynamicClickMessage').should("have.text","You have done a dynamic click");
+});
+
+
+
+it("Link Functionality ",()=>
+{
+   //Click the text Box
+   cy.get(".element-list.collapse.show").within(() => {
+    cy.contains("Links").click();
+  });
+
+  cy.get('#linkWrapper').within(()=>
+  {
+    cy.get('#created').click();
+    response("https://demoqa.com/created",201);
+  })
+})
+it("Broken image functionality",()=>
+{
+  //Click the text Box
+  cy.get(".element-list.collapse.show").within(() => {
+    cy.contains("Broken Links - Images").click();
+  });
+
+  cy.get(".col-12.mt-4.col-md-6").within(()=>
+  {
+
+    cy.get('img').each((img)=>
+    {
+      
+      //const src = img.attr('src');
+      // if(src){
+      //   cy.request(src).then((response)=>
+      // {
+      //   expect(response.status).to.eq(200);
+      // })
+      // }
+      // else
+      // {
+      //   cy.log("Image source is empty and this will get the broken image")
+      // }
+
+      const imageElement = img[0];
+
+      // Check if the image has a valid natural width and height
+      expect(imageElement.naturalWidth, 'Image should be loaded').to.be.greaterThan(0);
+      expect(imageElement.naturalHeight, 'Image should be loaded').to.be.greaterThan(0)
+    })  
+  })
+})
+
+
 });
